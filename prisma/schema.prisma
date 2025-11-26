@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  sections     InvestmentSection[]
+}
+
+model InvestmentSection {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  name             String
+  targetPercentage Float
+  createdAt        DateTime @default(now())
+
+  user    User   @relation(fields: [userId], references: [id])
+  assets  Asset[]
+
+  @@index([userId])
+}
+
+model Asset {
+  id               Int      @id @default(autoincrement())
+  sectionId        Int
+  name             String
+  ticker           String
+  type             String
+  description      String?
+  currentValue     Float    @default(0)
+  priceUnit        Float    @default(0)
+  quantity         Float    @default(0)
+  targetPercentage Float
+  createdAt        DateTime @default(now())
+
+  section InvestmentSection @relation(fields: [sectionId], references: [id])
+
+  @@index([sectionId])
+}

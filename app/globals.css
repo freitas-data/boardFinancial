@@ -1,0 +1,163 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", "system-ui", "sans-serif";
+  --background: 214 54% 97%;
+  --foreground: 222 47% 11%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+
+  --muted: 216 48% 94%;
+  --muted-foreground: 211 15% 42%;
+
+  --border: 214 39% 88%;
+  --input: 214 39% 88%;
+  --ring: 208 100% 69%;
+
+  --primary: 220 100% 61%;
+  --primary-hover: 220 72% 53%;
+  --primary-foreground: 214 100% 99%;
+
+  --secondary: 219 50% 92%;
+  --secondary-hover: 218 44% 87%;
+  --secondary-foreground: 215 28% 17%;
+
+  --accent: 165 59% 56%;
+  --accent-foreground: 221 50% 11%;
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 210 33% 98%;
+
+  --navy: 220 100% 61%;
+  --graphite: 211 15% 42%;
+  --sky: 208 100% 69%;
+  --amber: 27 85% 81%;
+
+  --radius: 12px;
+
+  --fs-16: 1rem;
+  --fs-18: 1.125rem;
+  --fs-20: 1.25rem;
+  --fs-24: 1.5rem;
+  --fs-32: 2rem;
+  --fs-48: 3rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply min-h-screen bg-[hsl(var(--background))] text-foreground antialiased;
+    font-size: var(--fs-16);
+    line-height: 1.65;
+    background-image:
+      radial-gradient(circle at 18% 20%, rgba(95, 180, 255, 0.18), transparent 30%),
+      radial-gradient(circle at 82% 10%, rgba(76, 209, 176, 0.14), transparent 28%),
+      linear-gradient(140deg, rgba(245, 248, 252, 0.98), rgba(231, 239, 250, 0.98));
+  }
+
+  @media (min-width: 640px) {
+    body {
+      font-size: var(--fs-18);
+    }
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply tracking-tight text-[hsl(var(--foreground))] font-semibold;
+  }
+
+  h1 {
+    font-size: var(--fs-48);
+    line-height: 1.08;
+  }
+
+  h2 {
+    font-size: var(--fs-32);
+    line-height: 1.18;
+  }
+
+  h3 {
+    font-size: var(--fs-24);
+    line-height: 1.2;
+  }
+
+  p {
+    @apply leading-relaxed;
+  }
+
+  ::selection {
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply backdrop-blur-md bg-white/70 border border-border/60 shadow-lg shadow-black/5;
+  }
+
+  .soft-gradient {
+    background: linear-gradient(120deg, rgba(58, 123, 255, 0.16), rgba(95, 180, 255, 0.14), rgba(76, 209, 176, 0.18));
+  }
+
+  /* Page-level layout helpers */
+  .hero-shell {
+    @apply relative overflow-hidden;
+  }
+
+  .hero-bubbles {
+    @apply absolute inset-0 -z-10 opacity-80;
+  }
+
+  .bubble-sky-left {
+    @apply pointer-events-none absolute left-[-10%] top-[-12%] h-64 w-64 rounded-full bg-[hsl(var(--sky))] blur-[110px];
+  }
+
+  .bubble-primary-right {
+    @apply pointer-events-none absolute right-[-12%] top-[-8%] h-72 w-72 rounded-full bg-[hsl(var(--primary))] blur-[120px];
+  }
+
+  .bubble-amber-bottom {
+    @apply pointer-events-none absolute bottom-[-12%] right-[-4%] h-80 w-80 rounded-full bg-[hsl(var(--amber))] blur-[140px];
+  }
+
+  .bubble-primary-left {
+    @apply pointer-events-none absolute left-[-8%] top-[-12%] h-64 w-64 rounded-full bg-[hsl(var(--primary))] blur-[120px];
+  }
+
+  .bubble-sky-right-bottom {
+    @apply pointer-events-none absolute right-[-10%] bottom-[-12%] h-72 w-72 rounded-full bg-[hsl(var(--sky))] blur-[120px];
+  }
+
+  .bubble-accent-center {
+    @apply pointer-events-none absolute left-[30%] top-[20%] h-52 w-52 rounded-full bg-[hsl(var(--accent))] blur-[110px];
+  }
+
+  .bubble-accent-left {
+    @apply pointer-events-none absolute left-[-12%] top-[-14%] h-64 w-64 rounded-full bg-[hsl(var(--accent))] blur-[110px];
+  }
+
+  .bubble-sky-bottom-left {
+    @apply pointer-events-none absolute bottom-[-18%] left-[15%] h-80 w-80 rounded-full bg-[hsl(var(--sky))] blur-[140px];
+  }
+
+  /* Reusable pills and panels */
+  .pill-outline {
+    @apply inline-flex items-center gap-2 rounded-full border border-border/70 bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[hsl(var(--foreground))];
+  }
+
+  .info-panel {
+    @apply flex items-start gap-8 rounded-2xl border border-border/70 bg-white/80 p-4 shadow-sm backdrop-blur;
+  }
+
+  .summary-side-card {
+    @apply hidden w-48 flex-col justify-between rounded-xl border border-border/60 bg-[hsl(var(--secondary))] p-4 text-[length:var(--fs-16)] text-[hsl(var(--muted-foreground))] shadow-inner shadow-black/10 sm:flex;
+  }
+}

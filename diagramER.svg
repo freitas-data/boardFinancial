@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="900" height="450" viewBox="0 0 900 450" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Background -->
+  <rect x="0" y="0" width="900" height="450" fill="#0b1020"/>
+
+  <!-- Common styles -->
+  <style>
+    .entity-box {
+      fill: #111827;
+      stroke: #4b5563;
+      stroke-width: 1.5;
+      rx: 8;
+      ry: 8;
+    }
+    .entity-header {
+      fill: #1f2937;
+    }
+    .entity-title {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      fill: #e5e7eb;
+    }
+    .field-text {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 13px;
+      fill: #d1d5db;
+    }
+    .field-pk {
+      font-weight: 600;
+      fill: #fbbf24;
+    }
+    .field-fk {
+      font-weight: 600;
+      fill: #34d399;
+    }
+    .field-label {
+      font-weight: 400;
+    }
+    .rel-line {
+      stroke: #9ca3af;
+      stroke-width: 1.5;
+      marker-end: url(#arrowhead);
+    }
+    .rel-text {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 12px;
+      fill: #9ca3af;
+    }
+  </style>
+
+  <!-- Arrow marker -->
+  <defs>
+    <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <polygon points="0 0, 6 3, 0 6" fill="#9ca3af" />
+    </marker>
+  </defs>
+
+  <!-- USER ENTITY -->
+  <g id="UserEntity" transform="translate(60, 80)">
+    <!-- Box -->
+    <rect class="entity-box" x="0" y="0" width="240" height="210"/>
+    <!-- Header -->
+    <rect class="entity-header" x="0" y="0" width="240" height="34" rx="8" ry="8"/>
+    <!-- Title -->
+    <text class="entity-title" x="16" y="22">User</text>
+
+    <!-- Fields -->
+    <text class="field-text field-pk" x="16" y="60">PK</text>
+    <text class="field-text field-label" x="48" y="60">id</text>
+
+    <text class="field-text" x="16" y="84">name</text>
+    <text class="field-text" x="16" y="108">email (unique)</text>
+    <text class="field-text" x="16" y="132">passwordHash</text>
+    <text class="field-text" x="16" y="156">createdAt</text>
+  </g>
+
+  <!-- INVESTMENTSECTION ENTITY -->
+  <g id="InvestmentSectionEntity" transform="translate(330, 50)">
+    <!-- Box -->
+    <rect class="entity-box" x="0" y="0" width="260" height="240"/>
+    <!-- Header -->
+    <rect class="entity-header" x="0" y="0" width="260" height="34" rx="8" ry="8"/>
+    <!-- Title -->
+    <text class="entity-title" x="16" y="22">InvestmentSection</text>
+
+    <!-- Fields -->
+    <text class="field-text field-pk" x="16" y="60">PK</text>
+    <text class="field-text field-label" x="48" y="60">id</text>
+
+    <text class="field-text field-fk" x="16" y="84">FK</text>
+    <text class="field-text field-label" x="48" y="84">userId → User.id</text>
+
+    <text class="field-text" x="16" y="108">name</text>
+
+    <text class="field-text" x="16" y="132">targetPercentage (0–100)</text>
+    <text class="field-text" x="16" y="156">createdAt</text>
+
+    <!-- Note about max 4 sections -->
+    <text class="field-text" x="16" y="188">• max 4 per user</text>
+  </g>
+
+  <!-- ASSET ENTITY -->
+  <g id="AssetEntity" transform="translate(640, 40)">
+    <!-- Box -->
+    <rect class="entity-box" x="0" y="0" width="230" height="270"/>
+    <!-- Header -->
+    <rect class="entity-header" x="0" y="0" width="230" height="34" rx="8" ry="8"/>
+    <!-- Title -->
+    <text class="entity-title" x="16" y="22">Asset</text>
+
+    <!-- Fields -->
+    <text class="field-text field-pk" x="16" y="60">PK</text>
+    <text class="field-text field-label" x="48" y="60">id</text>
+
+    <text class="field-text field-fk" x="16" y="84">FK</text>
+    <text class="field-text field-label" x="48" y="84">sectionId → InvestmentSection.id</text>
+
+    <text class="field-text" x="16" y="108">name</text>
+    <text class="field-text" x="16" y="132">ticker</text>
+    <text class="field-text" x="16" y="156">type</text>
+    <text class="field-text" x="16" y="180">description (optional)</text>
+    <text class="field-text" x="16" y="204">currentValue</text>
+    <text class="field-text" x="16" y="228">targetPercentage (0–100)</text>
+    <text class="field-text" x="16" y="252">createdAt</text>
+  </g>
+
+  <!-- RELATION: User 1..N InvestmentSection -->
+  <line class="rel-line" x1="300" y1="145" x2="330" y2="145"/>
+  <text class="rel-text" x="290" y="135">1</text>
+  <text class="rel-text" x="332" y="135">N</text>
+
+  <!-- RELATION: InvestmentSection 1..N Asset -->
+  <line class="rel-line" x1="590" y1="150" x2="640" y2="150"/>
+  <text class="rel-text" x="580" y="140">1</text>
+  <text class="rel-text" x="642" y="140">N</text>
+
+</svg>
