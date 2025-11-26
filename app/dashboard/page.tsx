@@ -27,14 +27,14 @@ export default async function DashboardPage() {
     <main className="min-h-screen bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
       <div className="container flex min-h-screen flex-col gap-8 py-10">
         <div className="flex items-center justify-between gap-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold uppercase tracking-[0.14em] text-[hsl(var(--foreground))] bg-white/70">
-            Controle<span className="text-[hsl(var(--primary))]">Invest</span>
+          <div className="inline-flex items-center gap-2 rounded-full border border-border/70 px-4 py-2 text-sm font-semibold uppercase tracking-[0.14em] text-[hsl(var(--primary))] bg-[hsl(var(--secondary))] shadow-sm shadow-black/20">
+            Controle<span className="text-[hsl(var(--foreground))]">Invest</span>
           </div>
           <DashboardActions initialSections={sections} userName={session.user.name} />
         </div>
 
         <div className="grid gap-6">
-          <Card className="shadow-xl shadow-black/10 bg-white/90">
+          <Card className="shadow-xl shadow-black/25 bg-[hsl(var(--card))]">
             <CardHeader>
               <div className="flex items-center justify-between gap-3">
                 <CardTitle>Suas seções</CardTitle>

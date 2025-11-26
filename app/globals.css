@@ -4,37 +4,37 @@
 
 :root {
   --font-sans: "Inter", "system-ui", "sans-serif";
-  --background: 214 54% 97%;
-  --foreground: 222 47% 11%;
+  --background: 220 26% 10%;
+  --foreground: 210 30% 96%;
 
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
+  --card: 223 18% 14%;
+  --card-foreground: 210 30% 96%;
 
-  --muted: 216 48% 94%;
-  --muted-foreground: 211 15% 42%;
+  --muted: 220 16% 20%;
+  --muted-foreground: 210 14% 72%;
 
-  --border: 214 39% 88%;
-  --input: 214 39% 88%;
-  --ring: 208 100% 69%;
+  --border: 220 12% 26%;
+  --input: 220 12% 26%;
+  --ring: 192 86% 54%;
 
-  --primary: 220 100% 61%;
-  --primary-hover: 220 72% 53%;
-  --primary-foreground: 214 100% 99%;
+  --primary: 192 86% 54%;
+  --primary-hover: 192 78% 48%;
+  --primary-foreground: 210 30% 96%;
 
-  --secondary: 219 50% 92%;
-  --secondary-hover: 218 44% 87%;
-  --secondary-foreground: 215 28% 17%;
+  --secondary: 223 18% 18%;
+  --secondary-hover: 223 18% 22%;
+  --secondary-foreground: 210 30% 92%;
 
-  --accent: 165 59% 56%;
-  --accent-foreground: 221 50% 11%;
+  --accent: 160 56% 44%;
+  --accent-foreground: 210 30% 96%;
 
   --destructive: 0 72% 51%;
   --destructive-foreground: 210 33% 98%;
 
-  --navy: 220 100% 61%;
-  --graphite: 211 15% 42%;
-  --sky: 208 100% 69%;
-  --amber: 27 85% 81%;
+  --navy: 223 18% 18%;
+  --graphite: 220 12% 26%;
+  --sky: 192 86% 54%;
+  --amber: 40 92% 58%;
 
   --radius: 12px;
 
@@ -56,9 +56,9 @@
     font-size: var(--fs-16);
     line-height: 1.65;
     background-image:
-      radial-gradient(circle at 18% 20%, rgba(95, 180, 255, 0.18), transparent 30%),
-      radial-gradient(circle at 82% 10%, rgba(76, 209, 176, 0.14), transparent 28%),
-      linear-gradient(140deg, rgba(245, 248, 252, 0.98), rgba(231, 239, 250, 0.98));
+      radial-gradient(circle at 18% 20%, rgba(76, 209, 176, 0.12), transparent 30%),
+      radial-gradient(circle at 82% 10%, rgba(95, 180, 255, 0.12), transparent 28%),
+      linear-gradient(140deg, rgba(16, 21, 32, 0.98), rgba(18, 26, 38, 0.98));
   }
 
   @media (min-width: 640px) {
@@ -104,7 +104,7 @@
   }
 
   .soft-gradient {
-    background: linear-gradient(120deg, rgba(58, 123, 255, 0.16), rgba(95, 180, 255, 0.14), rgba(76, 209, 176, 0.18));
+    background: linear-gradient(120deg, rgba(95, 180, 255, 0.16), rgba(76, 209, 176, 0.12), rgba(95, 180, 255, 0.18));
   }
 
   /* Page-level layout helpers */

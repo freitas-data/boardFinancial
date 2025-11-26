@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { strategyModules } from "@/app/dashboard/modules";
 
 type SectionOption = { id: number; name: string };
 
@@ -24,6 +25,7 @@ export function StrategyUploader({ sections }: { sections: SectionOption[] }) {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, startTransition] = useTransition();
+  const [moduleId, setModuleId] = useState<string>("");
 
   useEffect(() => {
     if (parseState?.rows?.length) {
@@ -81,14 +83,14 @@ export function StrategyUploader({ sections }: { sections: SectionOption[] }) {
   return (
     <Card className="shadow-xl shadow-black/10">
       <CardHeader>
-        <CardTitle>Importar estratégia (Excel/PDF)</CardTitle>
+        <CardTitle>Importar estratégia (Excel)</CardTitle>
         <CardDescription>
-          Envie planilha (XLSX/CSV) ou PDF com colunas de Ativo e Percentual. Escolha o tipo antes de salvar.
+          Envie planilha (XLSX/CSV) com colunas de Ativo e Percentual. Escolha o tipo antes de salvar.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <form
-          className="flex flex-col gap-3 md:flex-row md:items-center"
+          className="grid gap-4 md:grid-cols-[1fr_auto_auto] md:items-end"
           onSubmit={(e) => {
             e.preventDefault();
             setError(null);
@@ -96,6 +98,10 @@ export function StrategyUploader({ sections }: { sections: SectionOption[] }) {
             const form = e.currentTarget;
             const fileInput = form.elements.namedItem("file") as HTMLInputElement | null;
             const file = fileInput?.files?.[0];
+            if (!moduleId) {
+              setError("Selecione um módulo.");
+              return;
+            }
             if (!file) {
               setError("Selecione um arquivo.");
               return;
@@ -105,15 +111,67 @@ export function StrategyUploader({ sections }: { sections: SectionOption[] }) {
               return;
             }
             const fd = new FormData(form);
+            fd.set("moduleId", moduleId);
             startTransition(() => {
               formAction(fd);
             });
           }}
         >
-          <Input name="file" type="file" accept=".xlsx,.xls,.csv,.pdf" required className="max-w-md" />
-          <Button type="submit" disabled={pendingParse}>
-            {pendingParse ? "Lendo arquivo..." : "Ler arquivo"}
-          </Button>
+          <div className="grid gap-2">
+            <Label className="text-sm font-semibold">Módulo</Label>
+            <select
+              className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm"
+              value={moduleId}
+              onChange={(e) => setModuleId(e.target.value)}
+              required
+            >
+              <option value="" disabled>
+                Selecione o módulo
+              </option>
+              {strategyModules.map((mod) => (
+                <option key={mod.id} value={mod.id}>
+                  {mod.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="grid gap-2">
+            <Label className="text-sm font-semibold">Arquivo (XLSX/CSV)</Label>
+            <div className="flex items-center gap-3">
+              <label className="inline-flex items-center gap-2 rounded-lg border border-border bg-[hsl(var(--secondary))] px-4 py-2 text-sm font-semibold text-[hsl(var(--foreground))] shadow-sm hover:border-[hsl(var(--ring))] hover:shadow">
+                Escolher arquivo
+                <Input
+                  name="file"
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  required
+                  className="hidden"
+                  disabled={!moduleId}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setMessage(`Selecionado: ${file.name}`);
+                    } else {
+                      setMessage(null);
+                    }
+                  }}
+                />
+              </label>
+              <span className="text-xs text-[hsl(var(--muted-foreground))]">
+                {message?.startsWith("Selecionado") ? message : "Nenhum arquivo escolhido"}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-end">
+            <Button
+              type="submit"
+              disabled={pendingParse || !moduleId}
+              className="w-full md:w-auto bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary-hover))] border border-border"
+              variant="secondary"
+            >
+              {pendingParse ? "Lendo arquivo..." : "Ler arquivo"}
+            </Button>
+          </div>
         </form>
 
         {parseState?.error ? (
@@ -176,7 +234,7 @@ export function StrategyUploader({ sections }: { sections: SectionOption[] }) {
                     <th className="px-3 py-2 w-20">Ações</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/60 bg-white/70">
+                <tbody className="divide-y divide-border/60 bg-[hsl(var(--card))]">
                   {rows.map((row, idx) => (
                     <tr key={idx}>
                       <td className="px-3 py-2">
@@ -219,7 +277,12 @@ export function StrategyUploader({ sections }: { sections: SectionOption[] }) {
         <div className="flex items-center justify-end gap-3">
           {error ? <p className="text-sm font-semibold text-[hsl(var(--destructive))]">{error}</p> : null}
           {message ? <p className="text-sm font-semibold text-[hsl(var(--accent))]">{message}</p> : null}
-          <Button onClick={handleImport} disabled={isSaving || !rows.length || !sectionId}>
+          <Button
+            onClick={handleImport}
+            disabled={isSaving || !rows.length || !sectionId}
+            className="bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary-hover))] border border-border"
+            variant="secondary"
+          >
             {isSaving ? "Importando..." : "Confirmar importação"}
           </Button>
         </div>

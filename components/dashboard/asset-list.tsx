@@ -89,7 +89,7 @@ export function AssetList({ assets }: { assets: AssetRow[] }) {
       {sortedAssets.map((asset) => (
         <div
           key={asset.id}
-          className="grid grid-cols-[0.5fr_1fr_0.8fr_0.6fr_0.6fr_0.8fr_auto] items-center gap-2 rounded-lg border border-border/60 bg-white/80 px-3 py-2 text-sm text-[hsl(var(--foreground))]"
+          className="grid grid-cols-[0.5fr_1fr_0.8fr_0.6fr_0.6fr_0.8fr_auto] items-center gap-2 rounded-lg border border-border/60 bg-[hsl(var(--secondary))] px-3 py-2 text-sm text-[hsl(var(--foreground))]"
         >
           <div className="font-semibold">{asset.ticker}</div>
           <div className="truncate text-[hsl(var(--muted-foreground))]">{asset.name}</div>
