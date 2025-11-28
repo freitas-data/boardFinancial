@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { strategyModules } from "@/app/dashboard/modules";
 
 type SectionOption = { id: number; name: string };
 
@@ -17,7 +16,9 @@ const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
 type LocalRow = { asset: string; percentage: number };
 
-export function StrategyUploader({ sections }: { sections: SectionOption[] }) {
+type ModuleOption = { id: string; name: string; supportedExtensions: string[] };
+
+export function StrategyUploader({ sections, modules }: { sections: SectionOption[]; modules: ModuleOption[] }) {
   const [parseState, formAction, pendingParse] = useActionState<ParseState, FormData>(parseStrategy, { rows: [] });
   const [rows, setRows] = useState<LocalRow[]>([]);
   const [assetType, setAssetType] = useState<string>(TYPES[0]);
@@ -26,6 +27,8 @@ export function StrategyUploader({ sections }: { sections: SectionOption[] }) {
   const [error, setError] = useState<string | null>(null);
   const [isSaving, startTransition] = useTransition();
   const [moduleId, setModuleId] = useState<string>("");
+  const [modulePage, setModulePage] = useState<string>("");
+  const [equalTargets, setEqualTargets] = useState<boolean>(true);
 
   useEffect(() => {
     if (parseState?.rows?.length) {
@@ -112,6 +115,8 @@ export function StrategyUploader({ sections }: { sections: SectionOption[] }) {
             }
             const fd = new FormData(form);
             fd.set("moduleId", moduleId);
+            if (modulePage) fd.set("modulePage", modulePage);
+            fd.set("moduleEqualTargets", equalTargets ? "true" : "false");
             startTransition(() => {
               formAction(fd);
             });
@@ -128,22 +133,51 @@ export function StrategyUploader({ sections }: { sections: SectionOption[] }) {
               <option value="" disabled>
                 Selecione o módulo
               </option>
-              {strategyModules.map((mod) => (
+              {modules.map((mod) => (
                 <option key={mod.id} value={mod.id}>
                   {mod.name}
                 </option>
               ))}
             </select>
           </div>
+          {moduleId === "clubefii-pdf" ? (
+            <div className="grid grid-cols-1 gap-4 md:col-span-3 lg:grid-cols-3">
+              <div className="grid gap-2">
+                <Label className="text-sm font-semibold">Página da tabela (opcional)</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  placeholder="Ex: 9"
+                  value={modulePage}
+                  onChange={(e) => setModulePage(e.target.value)}
+                  className="md:w-40"
+                />
+              </div>
+              <div className="flex items-center gap-3 rounded-lg border border-border px-3 py-2">
+                <input
+                  id="equalTargets"
+                  type="checkbox"
+                  checked={equalTargets}
+                  onChange={(e) => setEqualTargets(e.target.checked)}
+                  className="h-4 w-4 rounded border-border bg-background text-[hsl(var(--primary))] focus:ring-[hsl(var(--ring))]"
+                />
+                <Label htmlFor="equalTargets" className="text-sm">
+                  Alvo igual para todos (100% dividido entre os ativos)
+                </Label>
+              </div>
+            </div>
+          ) : null}
           <div className="grid gap-2">
-            <Label className="text-sm font-semibold">Arquivo (XLSX/CSV)</Label>
+            <Label className="text-sm font-semibold">
+              Arquivo ({modules.find((m) => m.id === moduleId)?.supportedExtensions.join(", ") || "XLSX/CSV"})
+            </Label>
             <div className="flex items-center gap-3">
               <label className="inline-flex items-center gap-2 rounded-lg border border-border bg-[hsl(var(--secondary))] px-4 py-2 text-sm font-semibold text-[hsl(var(--foreground))] shadow-sm hover:border-[hsl(var(--ring))] hover:shadow">
                 Escolher arquivo
                 <Input
                   name="file"
                   type="file"
-                  accept=".xlsx,.xls,.csv"
+                  accept={(modules.find((m) => m.id === moduleId)?.supportedExtensions || []).join(",") || ".xlsx,.xls,.csv"}
                   required
                   className="hidden"
                   disabled={!moduleId}

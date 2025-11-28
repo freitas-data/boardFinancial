@@ -9,6 +9,7 @@ import { StrategyUploader } from "@/components/dashboard/strategy-uploader";
 import { deleteAssetAction } from "@/app/dashboard/asset-actions";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { strategyModules } from "@/app/dashboard/modules";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -52,7 +53,14 @@ export default async function DashboardPage() {
             </CardContent>
           </Card>
 
-          <StrategyUploader sections={sections.map((s) => ({ id: s.id, name: s.name }))} />
+          <StrategyUploader
+            sections={sections.map((s) => ({ id: s.id, name: s.name }))}
+            modules={strategyModules.map((m) => ({
+              id: m.id,
+              name: m.name,
+              supportedExtensions: m.supportedExtensions
+            }))}
+          />
         </div>
 
         <div className="text-center text-sm text-[hsl(var(--muted-foreground))]">

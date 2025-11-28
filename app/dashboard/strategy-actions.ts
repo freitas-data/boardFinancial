@@ -43,7 +43,13 @@ export async function parseStrategy(prevState: ParseState, formData: FormData): 
     const buffer = Buffer.from(await file.arrayBuffer());
     const name = file.name.toLowerCase();
 
-    const rows = await module.extract({ buffer, filename: name });
+    const options: Record<string, any> = {};
+    const page = formData.get("modulePage");
+    if (page) options.page = Number(page);
+    const equalTargets = formData.get("moduleEqualTargets");
+    if (equalTargets) options.equalTargets = equalTargets === "true";
+
+    const rows = await module.extract({ file: { buffer, filename: name }, options });
 
     return { rows };
   } catch (error) {

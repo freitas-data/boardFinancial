@@ -93,10 +93,18 @@ export async function createAsset(data: CreateAssetInput): Promise<CreateAssetRe
     const userId = Number(session.user.id);
 
     const section = await prisma.investmentSection.findFirst({
-      where: { id: parsed.sectionId, userId }
+      where: { id: parsed.sectionId, userId },
+      include: { assets: { select: { ticker: true } } }
     });
     if (!section) {
       return { error: "Seção não encontrada." };
+    }
+
+    const tickerExists = section.assets.some(
+      (a) => a.ticker.toLowerCase() === parsed.ticker.toLowerCase()
+    );
+    if (tickerExists) {
+      return { error: "Ticker já existe nesta seção." };
     }
 
     await prisma.asset.create({

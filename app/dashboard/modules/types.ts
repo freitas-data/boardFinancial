@@ -4,5 +4,5 @@ export interface StrategyModule {
   id: string;
   name: string;
   supportedExtensions: string[];
-  extract: (file: { buffer: Buffer; filename: string }) => Promise<ParsedRow[]>;
+  extract: (params: { file: { buffer: Buffer; filename: string }; options?: Record<string, any> }) => Promise<ParsedRow[]>;
 }

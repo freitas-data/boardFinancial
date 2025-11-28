@@ -154,5 +154,9 @@ Backend logic uses:
 ### 1. Install dependencies
 ```bash
 npm install
-
 codex resume 019aafd6-7445-7023-97aa-fc9ee5df8d6b
+
+npx prisma db push
+npm run build --no-turbo
+
+NEXT_DISABLE_TURBOPACK=1 npm run build

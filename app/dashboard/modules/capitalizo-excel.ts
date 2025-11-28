@@ -61,7 +61,7 @@ export const capitalizoExcelModule: StrategyModule = {
   id: "capitalizo-excel",
   name: "Capitalizo Investimentos – Excel",
   supportedExtensions: [".xlsx", ".xls", ".csv"],
-  async extract(file) {
+  async extract({ file }) {
     const name = file.filename.toLowerCase();
     let rows: ParsedRow[] = [];
 

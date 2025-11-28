@@ -17,6 +17,7 @@
     "lucide-react": "^0.343.0",
     "next": "^16.0.0",
     "next-auth": "^4.24.5",
+    "pdf-parse": "^1.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.49.2",
