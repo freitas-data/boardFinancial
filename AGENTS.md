@@ -234,3 +234,32 @@ Always:
 
 ## END OF AGENT SPECIFICATION
 
+## ROADMAP: Adding New Strategy Import Modules
+
+1. **Module scaffold**
+   - Add a new file under `app/dashboard/modules/` implementing `StrategyModule` (`id`, `name`, `supportedExtensions`, `extract`).
+   - `extract` receives `{ file: { buffer, filename }, options? }` and must return rows with `{ asset, percentage, action? }` where `action` is `comprar` | `vender` | `manter` (default to `manter` if the source doesn’t provide it).
+
+2. **Action extraction**
+   - Parse per-asset action from the source (Excel/CSV columns or PDF surrounding text).
+   - Do not hardcode a single action for all assets unless explicitly desired by the module; if absent, default each asset’s action to `manter`.
+
+3. **Registry**
+   - Register the module in `app/dashboard/modules/index.ts` so the UI can list it.
+   - Expose only metadata (id, name, extensions) to the client; keep parsing code server-only.
+
+4. **UI wiring**
+   - `StrategyUploader` receives `modules` from the server; module selection is required before upload.
+   - If the module needs extra options (e.g., PDF page, equal targets), add them conditionally in the uploader and pass them via `FormData` to `parseStrategy`.
+
+5. **Server action**
+   - `parseStrategy` resolves the module via `getModuleById` and calls `module.extract`.
+   - Handle errors with user-friendly messages; keep bodySizeLimit in `next.config.js` if needed.
+
+6. **Assets creation**
+   - Imported rows create assets with `asset` as name/ticker, `percentage` as target, and `action` stored in `Asset.action`.
+   - Prevent duplicate tickers per section; default priceUnit/quantity can remain 0 unless the module provides them.
+
+7. **Testing**
+   - Verify the new module with a sample file for its expected format and confirm actions/percentages are parsed correctly and rendered in the dashboard list.
+

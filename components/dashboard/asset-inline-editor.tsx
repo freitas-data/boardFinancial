@@ -9,28 +9,35 @@ import { Input } from "@/components/ui/input";
 type AssetInlineEditorProps = {
   assetId: number;
   priceUnit: number;
+  averagePrice: number;
   quantity: number;
+  action?: "comprar" | "vender" | "manter";
 };
 
-export function AssetInlineEditor({ assetId, priceUnit, quantity }: AssetInlineEditorProps) {
+export function AssetInlineEditor({ assetId, priceUnit, averagePrice, quantity, action }: AssetInlineEditorProps) {
   const [editing, setEditing] = useState(false);
   const [price, setPrice] = useState<string>(priceUnit ? priceUnit.toString() : "");
+  const [avgPrice, setAvgPrice] = useState<string>(averagePrice ? averagePrice.toString() : "");
   const [qty, setQty] = useState<string>(quantity ? quantity.toString() : "");
+  const [assetAction, setAssetAction] = useState<"comprar" | "vender" | "manter">(action ?? "comprar");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
   function handleSave() {
     setError(null);
-    startTransition(async () => {
-      const result = await updateAssetValues(assetId, {
+    startTransition(() => {
+      updateAssetValues(assetId, {
         priceUnit: price === "" ? 0 : Number(price),
-        quantity: qty === "" ? 0 : Number(qty)
+        averagePrice: avgPrice === "" ? 0 : Number(avgPrice),
+        quantity: qty === "" ? 0 : Number(qty),
+        action: assetAction
+      }).then((result) => {
+        if (result?.error) {
+          setError(result.error);
+          return;
+        }
+        setEditing(false);
       });
-      if (result?.error) {
-        setError(result.error);
-        return;
-      }
-      setEditing(false);
     });
   }
 
@@ -50,6 +57,15 @@ export function AssetInlineEditor({ assetId, priceUnit, quantity }: AssetInlineE
               type="number"
               min={0}
               step="0.01"
+              value={avgPrice}
+              onChange={(e) => setAvgPrice(e.target.value)}
+              placeholder="Preço médio"
+              className="h-9 text-sm"
+            />
+            <Input
+              type="number"
+              min={0}
+              step="0.01"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               placeholder="Preço unitário"
@@ -64,6 +80,15 @@ export function AssetInlineEditor({ assetId, priceUnit, quantity }: AssetInlineE
               placeholder="Qtd"
               className="h-9 text-sm"
             />
+            <select
+              className="h-9 rounded-md border border-border bg-background px-2 text-sm text-[hsl(var(--foreground))]"
+              value={assetAction}
+              onChange={(e) => setAssetAction(e.target.value as "comprar" | "vender" | "manter")}
+            >
+              <option value="comprar">Comprar</option>
+              <option value="manter">Manter</option>
+              <option value="vender">Vender</option>
+            </select>
           </div>
           <div className="mt-2 flex justify-end gap-2">
             <Button type="button" size="sm" onClick={handleSave} disabled={isPending}>

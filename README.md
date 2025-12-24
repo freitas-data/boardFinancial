@@ -29,6 +29,14 @@ Visual design inspired by XP Investimentos for a corporate, clean, and modern ex
 - Asset list grouped per section  
 - Clean XP-like UI  
 
+### 📥 Strategy Import (Modular)
+- Modules live in `app/dashboard/modules/` implementing `StrategyModule`.
+- Returned rows should include `asset`, `percentage`, and per-asset `action` (`comprar` | `vender` | `manter`), defaulting to `manter` if absent.
+- Current modules:
+  - `capitalizo-excel`: XLSX/CSV; detects action if a column exists; otherwise defaults to `manter`.
+  - `clubefii-pdf`: PDF; detects action per ticker from surrounding text; defaults to `manter` if none is found; supports optional equal-target split.
+- UI: user selects a module before upload; file types are limited by the module; some modules may expose extra options (e.g., PDF page, equal targets).
+
 ### 🏷️ Assets & Allocation Logic
 Each asset belongs to a section and has:
 - Name  
@@ -160,3 +168,5 @@ npx prisma db push
 npm run build --no-turbo
 
 NEXT_DISABLE_TURBOPACK=1 npm run build
+
+

@@ -74,7 +74,8 @@ export async function saveSections(data: { sections: SectionInput[] }): Promise<
       }
     });
 
-    revalidatePath("/dashboard");
+    revalidatePath("/assets");
+    revalidatePath("/report");
     return { success: true, sections: parsedSections };
   } catch (error) {
     if (error instanceof z.ZodError) {

@@ -3,46 +3,91 @@
 import { useMemo, useState } from "react";
 
 import { deleteAssetAction } from "@/app/dashboard/asset-actions";
-import { AssetInlineEditor } from "@/components/dashboard/asset-inline-editor";
+import { Input } from "@/components/ui/input";
 
 type AssetRow = {
   id: number;
   ticker: string;
   name: string;
   priceUnit: number;
+  averagePrice: number;
+  ceilingPrice: number;
+  fairPrice: number;
   quantity: number;
   targetPercentage: number;
   type: string;
+  action?: "comprar" | "vender" | "manter";
 };
 
-type SortKey = "ticker" | "name" | "priceUnit" | "quantity" | "total" | "targetPercentage";
+type SortKey =
+  | "ticker"
+  | "name"
+  | "averagePrice"
+  | "priceUnit"
+  | "ceilingPrice"
+  | "fairPrice"
+  | "quantity"
+  | "total"
+  | "targetPercentage";
+
+const GRID_COLS =
+  "grid-cols-[0.55fr_1.1fr_0.6fr_0.6fr_0.6fr_0.6fr_0.6fr_0.6fr_0.7fr_0.6fr_minmax(160px,0.9fr)]";
+
+export type AssetDraft = {
+  priceUnit: string;
+  averagePrice: string;
+  ceilingPrice: string;
+  fairPrice: string;
+  quantity: string;
+  targetPercentage: string;
+  action: "comprar" | "vender" | "manter";
+};
 
 function SortableHeader({
   label,
   active,
   direction,
-  onClick
+  onClick,
+  align = "left"
 }: {
   label: string;
   active: boolean;
   direction: "asc" | "desc";
   onClick: () => void;
+  align?: "left" | "center" | "right";
 }) {
+  const alignClass =
+    align === "right" ? "text-right" : align === "center" ? "text-center" : "text-left";
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`text-xs font-semibold ${active ? "text-[hsl(var(--foreground))]" : "text-[hsl(var(--muted-foreground))]"}`}
+      className={`w-full ${alignClass} text-xs font-semibold ${
+        active ? "text-[hsl(var(--foreground))]" : "text-[hsl(var(--muted-foreground))]"
+      }`}
     >
-      {label} {active ? (direction === "asc" ? "↑" : "↓") : ""}
+      <span className="inline-flex items-center gap-1 whitespace-nowrap">
+        <span>{label}</span>
+        {active ? <span>{direction === "asc" ? "↑" : "↓"}</span> : null}
+      </span>
     </button>
   );
 }
 
-export function AssetList({ assets }: { assets: AssetRow[] }) {
+export function AssetList({
+  assets,
+  isEditing,
+  drafts,
+  onDraftChange
+}: {
+  assets: AssetRow[];
+  isEditing: boolean;
+  drafts: Record<number, AssetDraft>;
+  onDraftChange: (assetId: number, patch: Partial<AssetDraft>) => void;
+}) {
   const [sort, setSort] = useState<{ key: SortKey; direction: "asc" | "desc" }>({
-    key: "ticker",
-    direction: "asc"
+    key: "targetPercentage",
+    direction: "desc"
   });
 
   const sortedAssets = useMemo(() => {
@@ -74,32 +119,209 @@ export function AssetList({ assets }: { assets: AssetRow[] }) {
     );
   }
 
+  function renderActionLabel(value?: "comprar" | "vender" | "manter") {
+    switch (value) {
+      case "comprar":
+        return "Comprar";
+      case "vender":
+        return "Vender";
+      case "manter":
+        return "Manter";
+      default:
+        return "Comprar";
+    }
+  }
+
   return (
     <div className="space-y-2">
-      <div className="grid grid-cols-[0.5fr_1fr_0.8fr_0.6fr_0.6fr_0.8fr_auto] items-center gap-2 px-3 text-[10px] uppercase tracking-wide text-[hsl(var(--muted-foreground))]">
-        <SortableHeader label="Código" active={sort.key === "ticker"} direction={sort.direction} onClick={() => toggleSort("ticker")} />
-        <SortableHeader label="Nome" active={sort.key === "name"} direction={sort.direction} onClick={() => toggleSort("name")} />
-        <SortableHeader label="Preço" active={sort.key === "priceUnit"} direction={sort.direction} onClick={() => toggleSort("priceUnit")} />
-        <SortableHeader label="Qtd" active={sort.key === "quantity"} direction={sort.direction} onClick={() => toggleSort("quantity")} />
-        <SortableHeader label="Total" active={sort.key === "total"} direction={sort.direction} onClick={() => toggleSort("total")} />
-        <SortableHeader label="Alvo %" active={sort.key === "targetPercentage"} direction={sort.direction} onClick={() => toggleSort("targetPercentage")} />
+      <div className={`grid ${GRID_COLS} items-center gap-2 px-3 text-[10px] uppercase tracking-wide text-[hsl(var(--muted-foreground))]`}>
+        <SortableHeader
+          label="Código"
+          active={sort.key === "ticker"}
+          direction={sort.direction}
+          onClick={() => toggleSort("ticker")}
+        />
+        <SortableHeader
+          label="Nome"
+          active={sort.key === "name"}
+          direction={sort.direction}
+          onClick={() => toggleSort("name")}
+        />
+        <span className="w-full text-left text-[10px] font-semibold text-[hsl(var(--muted-foreground))]">
+          Ação
+        </span>
+        <SortableHeader
+          label="Preço médio"
+          active={sort.key === "averagePrice"}
+          direction={sort.direction}
+          onClick={() => toggleSort("averagePrice")}
+        />
+        <SortableHeader
+          label="Preço unit."
+          active={sort.key === "priceUnit"}
+          direction={sort.direction}
+          onClick={() => toggleSort("priceUnit")}
+        />
+        <SortableHeader
+          label="Ceiling Price"
+          active={sort.key === "ceilingPrice"}
+          direction={sort.direction}
+          onClick={() => toggleSort("ceilingPrice")}
+        />
+        <SortableHeader
+          label="Fair Price"
+          active={sort.key === "fairPrice"}
+          direction={sort.direction}
+          onClick={() => toggleSort("fairPrice")}
+        />
+        <SortableHeader
+          label="Qtd"
+          active={sort.key === "quantity"}
+          direction={sort.direction}
+          onClick={() => toggleSort("quantity")}
+        />
+        <SortableHeader
+          label="Total"
+          active={sort.key === "total"}
+          direction={sort.direction}
+          onClick={() => toggleSort("total")}
+          align="right"
+        />
+        <SortableHeader
+          label="Alvo %"
+          active={sort.key === "targetPercentage"}
+          direction={sort.direction}
+          onClick={() => toggleSort("targetPercentage")}
+          align="right"
+        />
         <span className="text-right text-[10px] font-semibold text-[hsl(var(--muted-foreground))]">Ações</span>
       </div>
 
-      {sortedAssets.map((asset) => (
+      {sortedAssets.map((asset) => {
+        const draft = drafts[asset.id] ?? {
+          priceUnit: asset.priceUnit.toFixed(2),
+          averagePrice: asset.averagePrice.toFixed(2),
+          ceilingPrice: asset.ceilingPrice.toFixed(2),
+          fairPrice: asset.fairPrice.toFixed(2),
+          quantity: asset.quantity.toFixed(2),
+          targetPercentage: asset.targetPercentage.toFixed(2),
+          action: asset.action ?? "comprar"
+        };
+        const totalValue =
+          (Number(draft.priceUnit || 0) || 0) * (Number(draft.quantity || 0) || 0);
+        const actionValue = isEditing ? draft.action : asset.action ?? "comprar";
+        const rowTone =
+          actionValue === "manter"
+            ? "border-[hsl(var(--amber))]/40 bg-[hsl(var(--amber))]/15"
+            : "border-border/60 bg-[hsl(var(--secondary))]";
+        return (
         <div
           key={asset.id}
-          className="grid grid-cols-[0.5fr_1fr_0.8fr_0.6fr_0.6fr_0.8fr_auto] items-center gap-2 rounded-lg border border-border/60 bg-[hsl(var(--secondary))] px-3 py-2 text-sm text-[hsl(var(--foreground))]"
+          className={`grid ${GRID_COLS} ${rowTone} items-center gap-2 rounded-lg border px-3 py-2 text-sm text-[hsl(var(--foreground))]`}
         >
           <div className="font-semibold">{asset.ticker}</div>
           <div className="truncate text-[hsl(var(--muted-foreground))]">{asset.name}</div>
-          <div className="text-[hsl(var(--muted-foreground))]">R${asset.priceUnit.toFixed(2)}</div>
-          <div className="text-[hsl(var(--muted-foreground))]">{asset.quantity.toFixed(2)}</div>
-          <div className="text-[hsl(var(--muted-foreground))]">
-            R${(asset.priceUnit * asset.quantity).toFixed(2)}
-          </div>
-          <div className="text-[hsl(var(--primary))] font-semibold">{asset.targetPercentage.toFixed(2)}%</div>
-          <div className="flex items-center gap-2 justify-end">
+          {isEditing ? (
+            <>
+              <select
+                className="h-8 rounded-md border border-border bg-background px-2 text-xs text-[hsl(var(--foreground))]"
+                value={draft.action}
+                onChange={(e) =>
+                  onDraftChange(asset.id, { action: e.target.value as "comprar" | "vender" | "manter" })
+                }
+              >
+                <option value="comprar">Comprar</option>
+                <option value="manter">Manter</option>
+                <option value="vender">Vender</option>
+              </select>
+              <Input
+                type="number"
+                min={0}
+                step="0.01"
+                className="h-8 text-xs"
+                value={draft.averagePrice}
+                onChange={(e) => onDraftChange(asset.id, { averagePrice: e.target.value })}
+              />
+              <Input
+                type="number"
+                min={0}
+                step="0.01"
+                className="h-8 text-xs"
+                value={draft.priceUnit}
+                onChange={(e) => onDraftChange(asset.id, { priceUnit: e.target.value })}
+              />
+              <Input
+                type="number"
+                min={0}
+                step="0.01"
+                className="h-8 text-xs"
+                value={draft.ceilingPrice}
+                onChange={(e) => onDraftChange(asset.id, { ceilingPrice: e.target.value })}
+              />
+              <Input
+                type="number"
+                min={0}
+                step="0.01"
+                className="h-8 text-xs"
+                value={draft.fairPrice}
+                onChange={(e) => onDraftChange(asset.id, { fairPrice: e.target.value })}
+              />
+              <Input
+                type="number"
+                min={0}
+                step="0.01"
+                className="h-8 text-xs"
+                value={draft.quantity}
+                onChange={(e) => onDraftChange(asset.id, { quantity: e.target.value })}
+              />
+            </>
+          ) : (
+            <>
+              <div className="text-left text-xs font-semibold uppercase text-[hsl(var(--muted-foreground))]">
+                {renderActionLabel(asset.action)}
+              </div>
+              <div className="text-left tabular-nums text-[hsl(var(--muted-foreground))]">
+                R${asset.averagePrice.toFixed(2)}
+              </div>
+              <div className="text-left tabular-nums text-[hsl(var(--muted-foreground))]">
+                R${asset.priceUnit.toFixed(2)}
+              </div>
+              <div className="text-left tabular-nums text-[hsl(var(--muted-foreground))]">
+                R${asset.ceilingPrice.toFixed(2)}
+              </div>
+              <div className="text-left tabular-nums text-[hsl(var(--muted-foreground))]">
+                R${asset.fairPrice.toFixed(2)}
+              </div>
+              <div className="text-left tabular-nums text-[hsl(var(--muted-foreground))]">
+                {asset.quantity.toFixed(2)}
+              </div>
+            </>
+          )}
+          {isEditing ? (
+            <div className="text-right tabular-nums text-[hsl(var(--muted-foreground))]">
+              R${totalValue.toFixed(2)}
+            </div>
+          ) : (
+            <div className="text-right tabular-nums text-[hsl(var(--muted-foreground))]">
+              R${(asset.priceUnit * asset.quantity).toFixed(2)}
+            </div>
+          )}
+          {isEditing ? (
+            <Input
+              type="number"
+              min={0}
+              max={100}
+              step="0.01"
+              className="h-8 text-xs text-right tabular-nums"
+              value={draft.targetPercentage}
+              onChange={(e) => onDraftChange(asset.id, { targetPercentage: e.target.value })}
+            />
+          ) : (
+            <div className="text-right tabular-nums font-semibold text-[hsl(var(--primary))]">
+              {asset.targetPercentage.toFixed(2)}%
+            </div>
+          )}
+          <div className="flex items-center justify-end gap-2">
             <form action={deleteAssetAction}>
               <input type="hidden" name="assetId" value={asset.id} />
               <button
@@ -109,10 +331,10 @@ export function AssetList({ assets }: { assets: AssetRow[] }) {
                 Remover
               </button>
             </form>
-            <AssetInlineEditor assetId={asset.id} priceUnit={asset.priceUnit} quantity={asset.quantity} />
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

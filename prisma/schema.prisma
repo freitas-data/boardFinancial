@@ -38,8 +38,12 @@ model Asset {
   description      String?
   currentValue     Float    @default(0)
   priceUnit        Float    @default(0)
+  averagePrice     Float    @default(0)
+  ceilingPrice     Float    @default(0)
+  fairPrice        Float    @default(0)
   quantity         Float    @default(0)
   targetPercentage Float
+  action           String   @default("comprar")
   createdAt        DateTime @default(now())
 
   section InvestmentSection @relation(fields: [sectionId], references: [id])

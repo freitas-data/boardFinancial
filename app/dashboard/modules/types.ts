@@ -1,4 +1,6 @@
-export type ParsedRow = { asset: string; percentage: number };
+export type ActionType = "comprar" | "vender" | "manter";
+
+export type ParsedRow = { asset: string; percentage: number; action?: ActionType };
 
 export interface StrategyModule {
   id: string;

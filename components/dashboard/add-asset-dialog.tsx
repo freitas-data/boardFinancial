@@ -42,7 +42,11 @@ type AddAssetForm = {
   description?: string;
   targetPercentage: number | "";
   priceUnit: number | "";
+  averagePrice: number | "";
+  ceilingPrice: number | "";
+  fairPrice: number | "";
   quantity: number | "";
+  action: "comprar" | "vender" | "manter";
 };
 
 export function AddAssetDialog({ sections }: AddAssetDialogProps) {
@@ -55,7 +59,11 @@ export function AddAssetDialog({ sections }: AddAssetDialogProps) {
     description: "",
     targetPercentage: "",
     priceUnit: "",
-    quantity: ""
+    averagePrice: "",
+    ceilingPrice: "",
+    fairPrice: "",
+    quantity: "",
+    action: "comprar"
   });
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -89,7 +97,7 @@ export function AddAssetDialog({ sections }: AddAssetDialogProps) {
       setForm((prev) => ({ ...prev, sectionId: Number.isFinite(id) ? id : 0 }));
       return;
     }
-    if (key === "priceUnit" || key === "quantity") {
+    if (key === "priceUnit" || key === "quantity" || key === "averagePrice" || key === "ceilingPrice" || key === "fairPrice") {
       const num = typeof value === "number" ? value : Number(value);
       setForm((prev) => ({ ...prev, [key]: Number.isFinite(num) ? num : "" }));
       return;
@@ -97,30 +105,38 @@ export function AddAssetDialog({ sections }: AddAssetDialogProps) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  async function handleSave() {
+  function handleSave() {
     setError(null);
-    startTransition(async () => {
-      const result = await createAsset({
+    startTransition(() => {
+      createAsset({
         ...form,
         targetPercentage: Number(form.targetPercentage) || 0,
         priceUnit: Number(form.priceUnit) || 0,
+        averagePrice: Number(form.averagePrice) || 0,
+        ceilingPrice: Number(form.ceilingPrice) || 0,
+        fairPrice: Number(form.fairPrice) || 0,
         quantity: Number(form.quantity) || 0,
         sectionId: Number(form.sectionId)
-      });
-      if (result.error) {
-        setError(result.error);
-        return;
-      }
-      setOpen(false);
-      setForm({
-        sectionId: sections[0]?.id ?? 0,
-        name: "",
-        ticker: "",
-        type: TYPES[0],
-        description: "",
-        targetPercentage: "",
-        priceUnit: "",
-        quantity: ""
+      }).then((result) => {
+        if (result.error) {
+          setError(result.error);
+          return;
+        }
+        setOpen(false);
+        setForm({
+          sectionId: sections[0]?.id ?? 0,
+          name: "",
+          ticker: "",
+          type: TYPES[0],
+          description: "",
+          targetPercentage: "",
+          priceUnit: "",
+          averagePrice: "",
+          ceilingPrice: "",
+          fairPrice: "",
+          quantity: "",
+          action: "comprar"
+        });
       });
     });
   }
@@ -153,7 +169,7 @@ export function AddAssetDialog({ sections }: AddAssetDialogProps) {
             </CardHeader>
 
             <CardContent className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
                   <Label>Seção</Label>
                   <select
@@ -182,9 +198,21 @@ export function AddAssetDialog({ sections }: AddAssetDialogProps) {
                     ))}
                   </select>
                 </div>
+                <div className="space-y-2">
+                  <Label>Ação</Label>
+                  <select
+                    className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm"
+                    value={form.action}
+                    onChange={(e) => updateField("action", e.target.value as AddAssetForm["action"])}
+                  >
+                    <option value="comprar">Comprar</option>
+                    <option value="manter">Manter</option>
+                    <option value="vender">Vender</option>
+                  </select>
+                </div>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr_0.6fr_0.6fr_0.6fr]">
+              <div className="grid gap-4 md:grid-cols-[1.2fr_0.6fr_0.6fr_0.6fr_0.6fr_0.6fr_0.6fr_0.5fr]">
                 <div className="space-y-2">
                   <Label>Nome</Label>
                   <Input
@@ -202,14 +230,13 @@ export function AddAssetDialog({ sections }: AddAssetDialogProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Alvo (%)</Label>
+                  <Label>Preço médio</Label>
                   <Input
                     type="number"
                     min={0}
-                    max={100}
                     step="0.01"
-                    value={form.targetPercentage === "" ? "" : form.targetPercentage}
-                    onChange={(e) => updateField("targetPercentage", e.target.valueAsNumber)}
+                    value={form.averagePrice === "" ? "" : form.averagePrice}
+                    onChange={(e) => updateField("averagePrice", e.target.valueAsNumber)}
                   />
                 </div>
                 <div className="space-y-2">
@@ -230,6 +257,37 @@ export function AddAssetDialog({ sections }: AddAssetDialogProps) {
                     step="0.01"
                     value={form.quantity === "" ? "" : form.quantity}
                     onChange={(e) => updateField("quantity", e.target.valueAsNumber)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Ceiling Price</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={form.ceilingPrice === "" ? "" : form.ceilingPrice}
+                    onChange={(e) => updateField("ceilingPrice", e.target.valueAsNumber)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Fair Price</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={form.fairPrice === "" ? "" : form.fairPrice}
+                    onChange={(e) => updateField("fairPrice", e.target.valueAsNumber)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Alvo (%)</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step="0.01"
+                    value={form.targetPercentage === "" ? "" : form.targetPercentage}
+                    onChange={(e) => updateField("targetPercentage", e.target.valueAsNumber)}
                   />
                 </div>
               </div>

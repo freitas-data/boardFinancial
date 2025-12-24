@@ -21,7 +21,8 @@ const importSchema = z.object({
     .array(
       z.object({
         asset: z.string().trim().min(1),
-        percentage: z.number().min(0).max(100)
+        percentage: z.number().min(0).max(100),
+        action: z.enum(["comprar", "vender", "manter"]).optional()
       })
     )
     .min(1)
@@ -80,7 +81,8 @@ export async function importStrategy(data: z.infer<typeof importSchema>): Promis
       // Se o valor for <= 1, tratar como fração (ex: 0,0062 = 0,62%)
       const scaled = pctRaw <= 1 ? pctRaw * 100 : pctRaw;
       const pct = Math.max(0, Math.min(100, Math.round(scaled * 100) / 100));
-      return { asset: r.asset, percentage: pct };
+      const action = r.action ?? "comprar";
+      return { asset: r.asset, percentage: pct, action };
     });
 
     const section = await prisma.investmentSection.findFirst({
@@ -101,7 +103,11 @@ export async function importStrategy(data: z.infer<typeof importSchema>): Promis
             targetPercentage: row.percentage,
             currentValue: Math.random() * 100,
             priceUnit: 0,
-            quantity: 0
+            averagePrice: 0,
+            ceilingPrice: 0,
+            fairPrice: 0,
+            quantity: 0,
+            action: row.action
           }
         });
       }
@@ -109,7 +115,8 @@ export async function importStrategy(data: z.infer<typeof importSchema>): Promis
 
     const total = normalizedRows.reduce((sum, r) => sum + r.percentage, 0);
     const warning = total !== 100 ? `Total importado: ${total}%. Não soma 100%.` : null;
-    revalidatePath("/dashboard");
+    revalidatePath("/assets");
+    revalidatePath("/report");
     return { success: true, warning };
   } catch (error) {
     if (error instanceof z.ZodError) {
